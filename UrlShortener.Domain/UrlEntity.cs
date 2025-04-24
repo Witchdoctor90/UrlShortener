@@ -4,7 +4,7 @@ public class UrlEntity
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     
-    public string LongUrl { get; set; } = string.Empty;
+    public string? LongUrl { get; set; } = string.Empty;
     public string ShortCode { get; set; } = string.Empty;
     
     public DateTime CreatedAt { get; set; } = DateTime.Now;
@@ -13,7 +13,7 @@ public class UrlEntity
     //Ef constructor
     private UrlEntity() {}
 
-    public UrlEntity(string longUrl, string shortCode, Guid userId)
+    public UrlEntity(string? longUrl, string shortCode, Guid userId)
     {
         LongUrl = longUrl;
         ShortCode = shortCode;
