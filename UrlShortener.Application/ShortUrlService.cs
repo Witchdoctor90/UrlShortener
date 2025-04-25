@@ -7,40 +7,49 @@ public class ShortUrlService : IShortUrlService
 {
     private readonly IRepository<UrlEntity> _repository;
     
-    public async Task<UrlEntity> GetShortUrlAsync(string? longUrl, Guid userId)
+    public async Task<UrlEntity?> GetShortUrlAsync(string? longUrl, Guid userGuid)
     {
-        if(!Guid.TryParse(userId.ToString(), out var userGuid)) 
-            throw new UnauthorizedAccessException("Invalid user id");
+        if(string.IsNullOrEmpty(longUrl)) 
+            throw new ArgumentNullException(nameof(longUrl));
 
-        var shortCode = GenerateShortCode();
-        
-        var url = new UrlEntity(longUrl, shortCode, userGuid);
-        await _repository.AddAsync(url);
-        
-        return url;
+        var entity = await _repository.FirstAsync(x => x.LongUrl == longUrl);
+        if (entity is null)
+        {
+            return await _repository.AddAsync(new UrlEntity(longUrl, GenerateShortCode(), userGuid));
+        }
+        return entity;
     }
 
     public async Task<string?> GetLongUrlAsync(string shortCode)
     {
-        var url = await GetByShortCode(shortCode);
-        return url?.LongUrl;
+        if(string.IsNullOrEmpty(shortCode))
+            throw new ArgumentNullException(nameof(shortCode));
+        
+        var entity = await _repository.FirstAsync(x => x.ShortCode == shortCode);
+        if(entity is null) 
+            throw new KeyNotFoundException(nameof(shortCode));
+        
+        return entity.LongUrl;
     }
 
-    public Task<IReadOnlyList<UrlEntity>> GetUrlsForUserAsync(Guid userId)
+    public async Task<IEnumerable<UrlEntity>> GetUrlsForUserAsync(Guid userId)
     {
-        if (!Guid.TryParse(userId.ToString(), out var userGuid)) throw new UnauthorizedAccessException();
-        return _repository.GetAllForUserAsync(userGuid);
+        var result = await _repository.FindAsync(x => x.UserId == userId);
+        return result;
     }
-    
+
+    public async Task<IEnumerable<UrlEntity>> GetAllUrlsAsync()
+    {
+        return await _repository.GetAll();
+    }
+
+    public async Task DeleteUrlAsync(Guid guid)
+    {
+        await _repository.DeleteAsync(guid);
+    }
+
     private static string GenerateShortCode()
     {
         return Guid.NewGuid().ToString("N")[..8];
-    }
-
-    private async Task<UrlEntity> GetByShortCode(string shortCode)
-    {
-        var entity = await _repository.FirstAsync(x => x.ShortCode == shortCode);
-        if(entity == null) throw new KeyNotFoundException();
-        return entity;
     }
 }
