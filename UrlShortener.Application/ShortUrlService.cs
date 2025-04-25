@@ -43,8 +43,10 @@ public class ShortUrlService : IShortUrlService
         return await _repository.GetAll();
     }
 
-    public async Task DeleteUrlAsync(Guid guid)
+    public async Task DeleteUrlAsync(Guid guid, Guid userGuid)
     {
+        var entity = await _repository.FirstAsync(x => x.Id == guid);
+        if(entity.UserId != userGuid) throw new UnauthorizedAccessException();
         await _repository.DeleteAsync(guid);
     }
 
@@ -52,4 +54,5 @@ public class ShortUrlService : IShortUrlService
     {
         return Guid.NewGuid().ToString("N")[..8];
     }
+    
 }

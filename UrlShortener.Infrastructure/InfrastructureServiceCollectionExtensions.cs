@@ -24,9 +24,11 @@ public static class InfrastructureServiceCollectionExtensions
             opts.Password.RequireLowercase = false;
             opts.Password.RequireNonAlphanumeric = false;
             opts.Password.RequireUppercase = false;
-        });
+        })
+        .AddEntityFrameworkStores<ApplicationDbContext>()
+        .AddDefaultTokenProviders();
 
-        services.AddScoped<IShortUrlService, ShortUrlService>();
+        services.AddTransient<IShortUrlService, ShortUrlService>();
         
         return services;
     }

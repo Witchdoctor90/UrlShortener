@@ -10,4 +10,8 @@
       <ProjectReference Include="..\UrlShortener.Domain\UrlShortener.Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="8.1.1" />
+    </ItemGroup>
+
 </Project>

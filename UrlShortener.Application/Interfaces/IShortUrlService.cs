@@ -8,5 +8,5 @@ public interface IShortUrlService
     Task<string?> GetLongUrlAsync(string shortCode);
     Task<IEnumerable<UrlEntity>> GetUrlsForUserAsync(Guid userId);
     Task<IEnumerable<UrlEntity>> GetAllUrlsAsync();
-    Task DeleteUrlAsync(Guid guid);
+    Task DeleteUrlAsync(Guid guid, Guid userGuid);
 }
