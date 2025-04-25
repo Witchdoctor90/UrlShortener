@@ -6,7 +6,12 @@ namespace UrlShortener.Application;
 public class ShortUrlService : IShortUrlService
 {
     private readonly IRepository<UrlEntity> _repository;
-    
+
+    public ShortUrlService(IRepository<UrlEntity> repository)
+    {
+        _repository = repository;
+    }
+
     public async Task<UrlEntity?> GetShortUrlAsync(string? longUrl, Guid userGuid)
     {
         if(string.IsNullOrEmpty(longUrl)) 
@@ -35,12 +40,13 @@ public class ShortUrlService : IShortUrlService
     public async Task<IEnumerable<UrlEntity>> GetUrlsForUserAsync(Guid userId)
     {
         var result = await _repository.FindAsync(x => x.UserId == userId);
-        return result;
+        return !result.Any() ? [] : result;
     }
 
     public async Task<IEnumerable<UrlEntity>> GetAllUrlsAsync()
     {
-        return await _repository.GetAll();
+        var result = await _repository.GetAll();
+        return !result.Any() ? [] : result;
     }
 
     public async Task DeleteUrlAsync(Guid guid, Guid userGuid)

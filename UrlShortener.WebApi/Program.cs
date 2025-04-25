@@ -40,7 +40,10 @@ public class Program
         var app = builder.Build();
         app.UseHttpsRedirection();
         app.UseMiddleware<RedirectMiddleware>();
-
+        
+        app.UseSwagger();
+        app.UseSwaggerUI();
+        app.MapControllers();
         app.Run();
     }
 }

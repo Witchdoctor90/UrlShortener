@@ -7,10 +7,14 @@ using UrlShortener.Infrastructure.Identity;
 
 namespace UrlShortener.Infrastructure.DB;
 
-public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-    : IdentityDbContext<AppUser, IdentityRole<Guid>, Guid>(options)
+public class ApplicationDbContext : IdentityDbContext<AppUser, IdentityRole<Guid>, Guid>
 {
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+    {
+        Database.EnsureCreated();
+    }
+
     public DbSet<UrlEntity> Urls { get; set; }
-    
-    
+
+
 }

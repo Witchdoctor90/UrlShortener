@@ -6,6 +6,8 @@ using UrlShortener.Domain;
 
 namespace UrlShortener.WebApi.Controllers;
 
+[ApiController]
+[Route("[controller]/[action]")]
 public class ShortUrlsController : ControllerBase
 {
     private readonly IShortUrlService _shortUrlService;
@@ -25,7 +27,6 @@ public class ShortUrlsController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize]
     public async Task<IActionResult> GetAll()
     {
         var urls = await _shortUrlService.GetAllUrlsAsync();

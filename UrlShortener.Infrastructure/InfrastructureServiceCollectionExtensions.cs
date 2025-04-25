@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using UrlShortener.Application;
 using UrlShortener.Application.Interfaces;
+using UrlShortener.Domain;
 using UrlShortener.Infrastructure.DB;
 using UrlShortener.Infrastructure.Identity;
 
@@ -28,6 +29,7 @@ public static class InfrastructureServiceCollectionExtensions
         .AddEntityFrameworkStores<ApplicationDbContext>()
         .AddDefaultTokenProviders();
 
+        services.AddScoped<IRepository<UrlEntity>, UrlRepository>();
         services.AddTransient<IShortUrlService, ShortUrlService>();
         
         return services;
