@@ -1,3 +1,9 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using UrlShortener.Infrastructure;
+using UrlShortener.WebApi.Middleware;
+
 namespace UrlShortener.WebApi;
 
 public class Program
@@ -5,43 +11,35 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+        builder.Services.AddControllers();
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen();
+        
+        builder.Services
+            .AddInfrastructure(builder.Configuration.GetConnectionString("DefaultConnection"));
 
-        // Add services to the container.
-        builder.Services.AddAuthorization();
+        builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]);
 
-        // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-        builder.Services.AddOpenApi();
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    ValidateIssuer = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                };
+            });
 
         var app = builder.Build();
-
-        // Configure the HTTP request pipeline.
-        if (app.Environment.IsDevelopment())
-        {
-            app.MapOpenApi();
-        }
-
         app.UseHttpsRedirection();
-
-        app.UseAuthorization();
-
-        var summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
-
-        app.MapGet("/weatherforecast", (HttpContext httpContext) =>
-            {
-                var forecast = Enumerable.Range(1, 5).Select(index =>
-                        new WeatherForecast
-                        {
-                            Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                            TemperatureC = Random.Shared.Next(-20, 55),
-                            Summary = summaries[Random.Shared.Next(summaries.Length)]
-                        })
-                    .ToArray();
-                return forecast;
-            })
-            .WithName("GetWeatherForecast");
+        app.UseMiddleware<RedirectMiddleware>();
 
         app.Run();
     }
