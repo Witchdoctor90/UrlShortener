@@ -25,7 +25,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromForm] AuthRequest authRequest)
+    public async Task<IActionResult> Register([FromBody] AuthRequest authRequest)
     {
         var user = new AppUser
         {
@@ -38,11 +38,11 @@ public class AuthController : ControllerBase
         if(!result.Succeeded)
             return BadRequest(result.Errors);
 
-        return Ok();
+        return Ok(GenerateJwtToken(user));
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromForm] AuthRequest authRequest)
+    public async Task<IActionResult> Login([FromBody] AuthRequest authRequest)
     {
         var user = await _userManager.FindByNameAsync(authRequest.Username);
         if (user == null)

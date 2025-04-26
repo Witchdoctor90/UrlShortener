@@ -30,7 +30,7 @@ public static class InfrastructureServiceCollectionExtensions
         .AddDefaultTokenProviders();
 
         services.AddScoped<IRepository<UrlEntity>, UrlRepository>();
-        services.AddTransient<IShortUrlService, ShortUrlService>();
+        services.AddScoped<IShortUrlService, ShortUrlService>();
         
         return services;
     }

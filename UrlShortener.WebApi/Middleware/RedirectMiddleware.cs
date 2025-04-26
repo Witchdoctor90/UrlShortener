@@ -5,15 +5,13 @@ namespace UrlShortener.WebApi.Middleware;
 public class RedirectMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly IShortUrlService _shortUrlService;
 
-    public RedirectMiddleware(RequestDelegate next, IShortUrlService shortUrlService)
+    public RedirectMiddleware(RequestDelegate next)
     {
         _next = next;
-        _shortUrlService = shortUrlService;
     }
 
-    public async Task InvokeAsync(HttpContext context)
+    public async Task InvokeAsync(HttpContext context, IShortUrlService shortUrlService)
     {
         var path = context.Request.Path.Value.Trim('/');
         
@@ -34,7 +32,7 @@ public class RedirectMiddleware
 
         try
         {
-            var originalUrl = await _shortUrlService.GetLongUrlAsync(code);
+            var originalUrl = await shortUrlService.GetLongUrlAsync(code);
             context.Response.Redirect(originalUrl, permanent: true);
         }
         catch

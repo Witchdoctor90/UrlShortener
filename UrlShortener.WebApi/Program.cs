@@ -11,6 +11,17 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowFrontend", policy =>
+            {
+                policy
+                    .WithOrigins("http://localhost:3000") 
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials();
+            });
+        });
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
@@ -34,10 +45,13 @@ public class Program
                     IssuerSigningKey = new SymmetricSecurityKey(key),
                     ValidateAudience = true,
                     ValidateLifetime = true,
+                    ValidAudience = builder.Configuration["Jwt:Audience"],
+                    ValidIssuer = builder.Configuration["Jwt:Issuer"]
                 };
             });
 
         var app = builder.Build();
+        app.UseCors("AllowFrontend");
         app.UseHttpsRedirection();
         app.UseMiddleware<RedirectMiddleware>();
         

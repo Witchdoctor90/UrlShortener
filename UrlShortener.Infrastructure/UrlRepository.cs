@@ -9,7 +9,11 @@ namespace UrlShortener.Infrastructure;
 public class UrlRepository : IRepository<UrlEntity>
 {
     private readonly ApplicationDbContext _db;
-    
+
+    public UrlRepository(ApplicationDbContext db)
+    {
+        _db = db;
+    }
 
     public async Task<UrlEntity?> GetByIdAsync(Guid id)
     {

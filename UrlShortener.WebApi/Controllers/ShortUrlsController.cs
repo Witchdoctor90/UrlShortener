@@ -27,6 +27,15 @@ public class ShortUrlsController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize]
+    public async Task<IActionResult> GetById([FromBody] string id)
+    {
+        if (!Guid.TryParse(id, out var guid)) throw new ArgumentException();
+        var result = await _shortUrlService.GetUrlById(guid);
+        return Ok(result);
+    }
+
+    [HttpGet]
     public async Task<IActionResult> GetAll()
     {
         var urls = await _shortUrlService.GetAllUrlsAsync();
@@ -35,10 +44,11 @@ public class ShortUrlsController : ControllerBase
 
     [HttpDelete]
     [Authorize]
-    public async Task<IActionResult> Delete([FromBody] Guid id)
+    public async Task<IActionResult> Delete([FromBody] string id)
     {
         var userId = User.GetUserId();
-        await _shortUrlService.DeleteUrlAsync(id, userId);
+        Guid.TryParse(id, out var guid);
+        await _shortUrlService.DeleteUrlAsync(guid, userId);
         return Ok();
     }
 }

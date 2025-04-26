@@ -37,6 +37,13 @@ public class ShortUrlService : IShortUrlService
         return entity.LongUrl;
     }
 
+    public async Task<UrlEntity> GetUrlById(Guid guid)
+    {
+        var result = await _repository.GetByIdAsync(guid);
+        if (result is null) throw new KeyNotFoundException(nameof(guid));
+        return result;
+    }
+
     public async Task<IEnumerable<UrlEntity>> GetUrlsForUserAsync(Guid userId)
     {
         var result = await _repository.FindAsync(x => x.UserId == userId);
@@ -55,6 +62,7 @@ public class ShortUrlService : IShortUrlService
         if(entity.UserId != userGuid) throw new UnauthorizedAccessException();
         await _repository.DeleteAsync(guid);
     }
+    
 
     private static string GenerateShortCode()
     {
